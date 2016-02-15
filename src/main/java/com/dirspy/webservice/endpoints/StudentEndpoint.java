@@ -6,6 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 
 /**
  * @author Victor Moskvych
@@ -13,8 +18,8 @@ import javax.ws.rs.*;
 
 @Component
 @Path("/students")
-@Consumes("application/json")
-@Produces("application/json")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
 public class StudentEndpoint {
 
     private StudentRepository repository;
@@ -24,6 +29,8 @@ public class StudentEndpoint {
         this.repository = repository;
     }
 
+
+    //TODO: Add filters
     @GET
     public Iterable<Student> getStudents() {
         return repository.findAll();
@@ -31,20 +38,26 @@ public class StudentEndpoint {
 
     @GET
     @Path("/{studentId}")
-    public Student getStudentById(@PathParam("studentId") String id) {
+    public Student getStudent(@PathParam("studentId") String id) {
         return repository.findOne(id);
     }
 
     @POST
-    public void addStudent(Student student) {
-        repository.save(student);
+    public Response addStudent(Student student, @Context UriInfo uriInfo) {
+
+        Student newStudent = repository.save(student);
+        String newId = newStudent.getId();
+        URI uri = uriInfo.getAbsolutePathBuilder().path(newId).build();
+        return Response.created(uri)
+                        .entity(newStudent)
+                        .build();
     }
 
     @PUT
-    public Student updateStudent(Student student) {
-        if (repository.findOne(student.getId()) != null)
-            return repository.save(student);
-        return null;
+    @Path("/{studentId}")
+    public Student updateStudent(@PathParam("studentId") String id, Student student) {
+        student.setId(id);
+        return repository.save(student);
     }
 
     @DELETE
