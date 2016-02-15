@@ -38,6 +38,10 @@ public class Student {
         return new Builder();
     }
 
+    public String getId() {
+        return id;
+    }
+
     public String getFirstName() {
         return firstName;
     }
