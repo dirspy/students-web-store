@@ -29,9 +29,28 @@ public class StudentEndpoint {
         return repository.findAll();
     }
 
+    @GET
+    @Path("/{studentId}")
+    public Student getStudentById(@PathParam("studentId") String id) {
+        return repository.findOne(id);
+    }
+
     @POST
     public void addStudent(Student student) {
         repository.save(student);
+    }
+
+    @PUT
+    public Student updateStudent(Student student) {
+        if (repository.findOne(student.getId()) != null)
+            return repository.save(student);
+        return null;
+    }
+
+    @DELETE
+    @Path("/{studentId}")
+    public void deleteStudent(@PathParam("studentId") String id) {
+        repository.delete(id);
     }
 
 }
